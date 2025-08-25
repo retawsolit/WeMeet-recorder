@@ -12,8 +12,8 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-// notifyToWeMeet will use retryablehttp to make request
-func notifyToWeMeet(host, apiKey, apiSecret string, req *wemeet.RecorderToWeMeet, retryMax *uint) (int, error) {
+// NotifyToWeMeet will use retryablehttp to make request
+func NotifyToWeMeet(host, apiKey, apiSecret string, req *wemeet.RecorderToWeMeet, retryMax *uint) (int, error) {
 	client := retryablehttp.NewClient()
 	client.Logger = nil
 	if retryMax != nil {

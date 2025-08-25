@@ -11,6 +11,7 @@ import (
 
 	"github.com/retawsolit/WeMeet-protocol/wemeet"
 	"github.com/retawsolit/WeMeet-recorder/pkg/recorder"
+	"github.com/retawsolit/WeMeet-recorder/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -88,7 +89,7 @@ func (c *RecorderController) onAfterClose(req *wemeet.WeMeetToRecorder, filePath
 	}
 	log.Infoln(fmt.Sprintf("notifyToWeMeet with data: %+v", toSend))
 
-	_, err = utils.notifyToWeMeet(c.cnf.WeMeetInfo.Host, c.cnf.WeMeetInfo.ApiKey, c.cnf.WeMeetInfo.ApiSecret, toSend, nil)
+	_, err = utils.NotifyToWeMeet(c.cnf.WeMeetInfo.Host, c.cnf.WeMeetInfo.ApiKey, c.cnf.WeMeetInfo.ApiSecret, toSend, nil)
 	if err != nil {
 		log.Errorln(err)
 	}
@@ -185,7 +186,7 @@ func (c *RecorderController) postProcessRecording(req *wemeet.WeMeetToRecorder, 
 	}
 	log.Infoln(fmt.Sprintf("notifyToWeMeet with data: %+v", toSend))
 
-	_, err = utils.notifyToWeMeet(c.cnf.WeMeetInfo.Host, c.cnf.WeMeetInfo.ApiKey, c.cnf.WeMeetInfo.ApiSecret, toSend, nil)
+	_, err = utils.NotifyToWeMeet(c.cnf.WeMeetInfo.Host, c.cnf.WeMeetInfo.ApiKey, c.cnf.WeMeetInfo.ApiSecret, toSend, nil)
 	if err != nil {
 		log.Errorln(err)
 	}
