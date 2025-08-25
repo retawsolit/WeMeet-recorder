@@ -1,0 +1,19 @@
+services:
+  recorder:
+    build:
+      context: .
+      dockerfile: docker-build/Dockerfile
+    container_name: wemeet-recorder
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/app/config.yaml
+      - ../recording_files:/app/recording_files
+    environment:
+      - CONFIG_FILE=/app/config.yaml
+    networks:
+      - wemeet-server-net
+
+networks:
+  wemeet-server-net:
+    external: true
+    name: server_default
