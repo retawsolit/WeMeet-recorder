@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/retawsolit/WeMeet-protocol/wemeet"
+	"github.com/retawsolit/wemeet-protocol/wemeet"
 	"google.golang.org/protobuf/proto"
 )
 

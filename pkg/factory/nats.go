@@ -6,9 +6,9 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
-	"github.com/retawsolit/WeMeet-protocol/auth"
-	"github.com/retawsolit/WeMeet-protocol/wemeet"
 	"github.com/retawsolit/WeMeet-recorder/pkg/config"
+	"github.com/retawsolit/wemeet-protocol/auth"
+	"github.com/retawsolit/wemeet-protocol/wemeet"
 	log "github.com/sirupsen/logrus"
 )
 

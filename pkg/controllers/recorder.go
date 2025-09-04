@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	"github.com/retawsolit/WeMeet-protocol/wemeet"
 	"github.com/retawsolit/WeMeet-recorder/pkg/config"
 	"github.com/retawsolit/WeMeet-recorder/pkg/recorder"
 	natsservice "github.com/retawsolit/WeMeet-recorder/pkg/services/nats"
 	"github.com/retawsolit/WeMeet-recorder/version"
+	"github.com/retawsolit/wemeet-protocol/wemeet"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 )

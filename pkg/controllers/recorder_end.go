@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/retawsolit/WeMeet-protocol/wemeet"
 	"github.com/retawsolit/WeMeet-recorder/pkg/recorder"
 	"github.com/retawsolit/WeMeet-recorder/pkg/utils"
+	"github.com/retawsolit/wemeet-protocol/wemeet"
 	log "github.com/sirupsen/logrus"
 )
 

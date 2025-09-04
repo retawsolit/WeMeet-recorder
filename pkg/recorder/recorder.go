@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/retawsolit/WeMeet-protocol/wemeet"
 	"github.com/retawsolit/WeMeet-recorder/pkg/config"
+	"github.com/retawsolit/wemeet-protocol/wemeet"
 	log "github.com/sirupsen/logrus"
 )
 
