@@ -1,6 +1,4 @@
 .idea
-config.yaml
-docker-compose.yaml
 logs/
 bin/
 tmp/
