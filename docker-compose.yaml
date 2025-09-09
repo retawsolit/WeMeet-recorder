@@ -16,4 +16,4 @@ services:
 networks:
   wemeet-server-net:
     external: true
-    name: server_default
+    name: wemeet-server_default

@@ -7,7 +7,7 @@ require (
 	github.com/chromedp/chromedp v0.14.1
 	github.com/hashicorp/go-retryablehttp v0.7.8
 	github.com/nats-io/nats.go v1.44.0
-	github.com/retawsolit/wemeet-protocol v0.0.0-20250819074104-bde22fdd74a2
+	github.com/retawsolit/wemeet-protocol v1.0.18
 	github.com/sirupsen/logrus v1.9.3
 	github.com/urfave/cli/v3 v3.4.1
 	google.golang.org/protobuf v1.36.7
