@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"path"
 	"time"
 
@@ -15,7 +14,7 @@ import (
 
 // launch Chrome to access URL
 func (r *Recorder) launchChrome() {
-	log.Infof("launching chrome for task: %s, with url: %s", r.Req.Task.String(), r.joinUrl)
+	log.Infoln(fmt.Sprintf("launching chrome for task: %s, with url:%s", r.Req.Task.String(), r.joinUrl))
 
 	opts := []chromedp.ExecAllocatorOption{
 		// ---- Performance & Stability Flags ----
@@ -38,11 +37,11 @@ func (r *Recorder) launchChrome() {
 		// ---- Automation & UI Control Flags ----
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
-		chromedp.Flag("excludeSwitches", "enable-automation"),
+		chromedp.Flag("excludeSwitches", "enable-automation"), // Removes the "controlled by automation" bar
 		chromedp.Flag("disable-default-apps", true),
 		chromedp.Flag("disable-popup-blocking", true),
 		chromedp.Flag("disable-prompt-on-repost", true),
-		chromedp.Flag("password-store", "basic"),
+		chromedp.Flag("password-store", "basic"), // Prevents prompts for OS-level keyrings
 		chromedp.Flag("use-mock-keychain", true),
 		chromedp.Flag("kiosk", true),
 		chromedp.Flag("disable-notifications", true),
@@ -64,7 +63,6 @@ func (r *Recorder) launchChrome() {
 
 	allocCtx, allocCancel := chromedp.NewExecAllocator(r.ctx, opts...)
 	chromeCtx, chromeCancel := chromedp.NewContext(allocCtx)
-
 	r.Lock()
 	r.closeChrome = func() {
 		chromeCancel()
@@ -75,29 +73,21 @@ func (r *Recorder) launchChrome() {
 	chromedp.ListenBrowser(chromeCtx, func(ev interface{}) {
 		switch ev.(type) {
 		case *target.EventDetachedFromTarget:
-			log.Infof("browser detached from target for task: %s, roomTableId: %d", r.Req.Task.String(), r.Req.GetRoomTableId())
+			log.Infoln(fmt.Sprintf("browser detached from target for task: %s, roomTableId: %d", r.Req.Task.String(), r.Req.GetRoomTableId()))
 			r.Close(errors.New("browser detached from target unexpectedly"))
 		case *target.EventTargetCrashed:
-			log.Infof("browser crashed for task: %s, roomTableId: %d", r.Req.Task.String(), r.Req.GetRoomTableId())
+			log.Infoln(fmt.Sprintf("browser crashed for task: %s, roomTableId: %d", r.Req.Task.String(), r.Req.GetRoomTableId()))
 			r.Close(errors.New("browser crashed"))
 		}
 	})
 
-	var currentURL, title string
-
 	err := chromedp.Run(chromeCtx,
 		chromedp.Navigate(r.joinUrl),
-		chromedp.Location(&currentURL),
-		chromedp.Title(&title),
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			log.Infof("recorder joinUrl=%s", r.joinUrl)
-			log.Infof("after navigate currentURL=%s title=%s", currentURL, title)
-			return nil
-		}),
 		r.waitVisibleWithTimeout("div[id=startupJoinModal]", waitForSelectorTimeout),
 		chromedp.Click("button[id=listenOnlyJoin]", chromedp.NodeVisible),
 		r.waitVisibleWithTimeout("div[id=main-area]", waitForSelectorTimeout),
 		chromedp.ActionFunc(func(context.Context) error {
+			// wait to make sure videos are all loaded properly
 			time.Sleep(time.Second * 3)
 			return r.launchFfmpegProcess(path.Join(r.filePath, r.fileName))
 		}),
@@ -111,30 +101,6 @@ func (r *Recorder) launchChrome() {
 	if err != nil {
 		if !errors.Is(err, context.Canceled) {
 			log.Errorln("chrome:", err)
-
-			var buf []byte
-			if shotErr := chromedp.Run(chromeCtx, chromedp.FullScreenshot(&buf, 90)); shotErr == nil {
-				screenshotPath := path.Join(r.filePath, "debug-timeout.png")
-				if writeErr := os.WriteFile(screenshotPath, buf, 0644); writeErr != nil {
-					log.Errorf("failed to save screenshot: %v", writeErr)
-				} else {
-					log.Infof("saved screenshot to %s", screenshotPath)
-				}
-			} else {
-				log.Errorf("failed to capture screenshot: %v", shotErr)
-			}
-
-			var html string
-			if htmlErr := chromedp.Run(chromeCtx, chromedp.OuterHTML("html", &html, chromedp.ByQuery)); htmlErr == nil {
-				htmlPath := path.Join(r.filePath, "debug-timeout.html")
-				if writeErr := os.WriteFile(htmlPath, []byte(html), 0644); writeErr != nil {
-					log.Errorf("failed to save html dump: %v", writeErr)
-				} else {
-					log.Infof("saved html dump to %s", htmlPath)
-				}
-			} else {
-				log.Errorf("failed to capture html dump: %v", htmlErr)
-			}
 		}
 		r.Close(err)
 	}
@@ -145,7 +111,8 @@ func (r *Recorder) closeChromeDp() {
 	defer r.Unlock()
 
 	if r.closeChrome != nil {
-		log.Infof("closing chrome for task: %s, roomTableId: %d", r.Req.Task.String(), r.Req.GetRoomTableId())
+		log.Infoln(fmt.Sprintf("closing chrome for task: %s, roomTableId: %d", r.Req.Task.String(), r.Req.GetRoomTableId()))
+
 		r.closeChrome()
 		r.closeChrome = nil
 	}
@@ -155,10 +122,9 @@ func (r *Recorder) waitVisibleWithTimeout(selector string, timeout time.Duration
 	return func(ctx context.Context) error {
 		timeoutCtx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
-
 		err := chromedp.WaitVisible(selector).Do(timeoutCtx)
 		if err != nil && errors.Is(err, context.DeadlineExceeded) {
-			err = fmt.Errorf("%s was not visible after %v", selector, timeout)
+			err = errors.New(fmt.Sprintf("%s was not visible after %v", selector, timeout))
 		}
 		return err
 	}

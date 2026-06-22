@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-# PulseAudio cleanup
-mkdir -p /run/pulse /var/run/pulse /var/lib/pulse /root/.config/pulse "${XDG_RUNTIME_DIR:-/tmp/xdg}"
-rm -rf /tmp/.X* /run/pulse/* /var/run/pulse/* /var/lib/pulse/* /root/.config/pulse/* "${XDG_RUNTIME_DIR:-/tmp/xdg}"/pulse 2>/dev/null || true
+export HOME=/home/wemeet
+export XDG_RUNTIME_DIR=/tmp/xdg
 
-# Kill PulseAudio if already running (prevent crash on restart)
-pulseaudio --check && pulseaudio --kill || true
+mkdir -p /tmp/xdg /app
+rm -rf /tmp/.X* /tmp/xdg/pulse 2>/dev/null || true
 
-# Start PulseAudio in system mode (required for root user)
-pulseaudio --system -D --verbose --exit-idle-time=-1 --disallow-exit || true
+pulseaudio --kill || true
 
-# Move to working dir
-mkdir -p /app
+pulseaudio -D --exit-idle-time=-1 --disallow-exit
+
+export DISPLAY=:99
+Xvfb :99 -screen 0 1920x1080x24 -ac -nolisten tcp &
+
+sleep 2
+
 cd /app
-
-# Run recorder with optional config path
 exec WeMeet-recorder ${CONFIG_FILE:+--config "$CONFIG_FILE"} "$@"
